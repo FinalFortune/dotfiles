@@ -1,0 +1,63 @@
+"hi NonText ctermfg=none ctermbg=none
+"hi CursorColumn cterm=reverse
+"hi CursorLine ctermbg=none
+
+
+" My Key Bindings {
+
+    inoremap jk <ESC>
+    map <Tab> %
+
+    noremap ;; :%s:::g<Left><Left><Left>
+    noremap ;' :%s:::cg<Left><Left><Left><Left>
+
+    set colorcolumn=81
+
+    let g:load_doxygen_syntax=1
+
+    " FSwitch key bindings {
+        " Switch to the file and load it into the current window
+        nmap <silent> <Leader>of :FSHere<cr>
+        " Switch to the file and load it into the window on the right
+        nmap <silent> <Leader>ol :FSRight<cr>
+        " Switch to the file and load it into a new window split on the right
+        nmap <silent> <Leader>oL :FSSplitRight<cr>
+        " Switch to the file and load it into the window on the left
+        nmap <silent> <Leader>oh :FSLeft<cr>
+        " Switch to the file and load it into a new window split on the left
+        nmap <silent> <Leader>oH :FSSplitLeft<cr>
+        " Switch to the file and load it into the window above
+        nmap <silent> <Leader>ok :FSAbove<cr>
+        " Switch to the file and load it into a new window split above
+        nmap <silent> <Leader>oK :FSSplitAbove<cr>
+        " Switch to the file and load it into the window below
+        nmap <silent> <Leader>oj :FSBelow<cr>
+        " Switch to the file and load it into a new window split below
+        nmap <silent> <Leader>oJ :FSSplitBelow<cr>
+    " }
+
+    au! BufEnter *.C let b:fswitchdst = 'h'
+    au! BufEnter *.h let b:fswitchdst = 'C'
+
+    " EasyBuffer mappings {
+        nm <Leader>b :EasyBuffer<CR>
+        map gn :bn<cr>"
+        map gp :bp<cr>
+        map gd :bd<cr>
+    " }
+
+    noremap <Leader>w :update<CR>
+    noremap <Leader>q :q<CR>
+    noremap <Leader>wq :wq<CR>
+    noremap <Leader><Leader>q :q!<CR>
+
+    noremap <Leader>r :CtrlPFunky<CR>
+    noremap <Leader>z :CtrlPZ<CR>
+    noremap <Leader>x :CtrlPF<CR>
+" }
+
+let g:ctrlp_z_nerdtree = 1
+
+let g:airline_theme='molokai'
+
+colorscheme hybrid
