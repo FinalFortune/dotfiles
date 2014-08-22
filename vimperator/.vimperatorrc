@@ -1,0 +1,11 @@
+" Modeline {
+" vim: set ft=vim foldmarker={,} foldlevel=0 foldmethod=marker spell:
+" }
+
+colorscheme vimpwhite
+
+" select tab to the right
+nnoremap <C-L> gt
+" select tab to the left
+nnoremap <C-H> gT
+
