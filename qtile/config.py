@@ -34,6 +34,9 @@ keys = [
     Key([], "XF86AudioLowerVolume",
         lazy.spawn("amixer -c 0 -q set Master 2dB-")),
     Key([], "XF86AudioMute", lazy.spawn("amixer -c 0 -q set Master toggle")),
+    Key([], "XF86AudioPlay", lazy.spawn("ncmpcpp toggle")),
+    Key([], "XF86Forward", lazy.spawn("ncmpcpp next")),
+    Key([], "XF86Back", lazy.spawn("ncmpcpp prev")),
 
     # Switch between windows in current stack pane
     Key(
