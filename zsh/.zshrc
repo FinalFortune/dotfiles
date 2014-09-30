@@ -36,7 +36,7 @@ function cd()
     export EDITOR='vim'
 
     # append third-party program binaries to PATH
-    export PATH=/home/finalfortune/.gem/ruby/2.1.0/bin:$PATH
+    export PATH=$(pwd)/../bin:/home/finalfortune/.gem/ruby/2.1.0/bin:$PATH
 
     # Aliases {
         alias pgrep="pgrep -a"

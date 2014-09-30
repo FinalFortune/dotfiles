@@ -15,7 +15,7 @@
 
     let g:load_doxygen_syntax=1
 
-    " FSwitch key bindings {
+    " FSwitch key bindings {https://github.com/terryma/dotfiles/blob/master/.vimrc
         " Switch to the file and load it into the current window
         nmap <silent> <Leader>of :FSHere<cr>
         " Switch to the file and load it into the window on the right
@@ -37,7 +37,7 @@
     " }
 
     au! BufEnter *.C let b:fswitchdst = 'h'
-    au! BufEnter *.h let b:fswitchdst = 'C'
+    au! BufEnter *.h let b:fswitchdst = 'C' 
 
     " EasyBuffer mappings {
         nm <Leader>b :EasyBuffer<CR>
@@ -54,6 +54,10 @@
     noremap <Leader>r :CtrlPFunky<CR>
     noremap <Leader>z :CtrlPZ<CR>
     noremap <Leader>x :CtrlPF<CR>
+
+    " vim-over mapping {
+        nnoremap <silent> <Leader> m: OverCommandLine <CR>
+    " }
 " }
 
 let g:ctrlp_z_nerdtree = 1
