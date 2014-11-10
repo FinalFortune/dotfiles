@@ -55,7 +55,7 @@ urxvt*visualBell: true
 urxvt*font: xft:Droid Sans Mono for Powerline
 !urxvt*font:xft:Inconsolata for Powerline
 urxvt*pointerBlank: true
-urxvt.keysym.Shift-Control-V: perl:clipboard:paste
+! urxvt.keysym.Shift-Control-V: perl:clipboard:paste
 urxvt.iso14755: False
 urxvt.perl-ext-common:default,clipboard,fullscreen
 urxvt.keysym.F11:perl:fullscreen:switch
@@ -67,3 +67,9 @@ urxvt*tint:white
 urxvt*scrollWithBuffer: true
 urxvt*scrollTtyOutput: false
 urxvt*scrollTtyKeypress: true
+URxvt.clipboard.copycmd:  xsel -ib
+URxvt.clipboard.pastecmd: xsel -ob
+URxvt.keysym.M-c:   perl:clipboard:copy
+URxvt.keysym.M-v:   perl:clipboard:paste
+URxvt.keysym.M-C-v: perl:clipboard:paste_escaped
+
