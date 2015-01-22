@@ -15,24 +15,23 @@ ZSH_THEME="crunch"
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
-plugins=(git archlinux tmux tmuxinator common-aliases vundle systemd fasd vi-mode)
+plugins=(cp pip lol git git-extras archlinux tmux tmuxinator common-aliases \ 
+         catimg systemd fasd vi-mode)
 
 source $ZSH/oh-my-zsh.sh
 
-bindkey '^P' up-history
-bindkey '^N' down-history
-bindkey '^?' backward-delete-char
-bindkey '^h' backward-delete-char
-bindkey '^w' backward-kill-word
-bindkey '^r' history-incremental-search-backward
+# vi-mode binds { 
+    bindkey '\e[A' history-beginning-search-backward
+    bindkey '\e[B' history-beginning-search-forward
+    bindkey '^p' history-beginning-search-backward
+    bindkey '^n' history-beginning-search-forward
 
-function zle-line-init zle-keymap-select {
-    VIM_PROMPT="%{$fg_bold[yellow]%} [% NORMAL]%  %{$reset_color%}"
-    zle reset-prompt
-}
+    bindkey '^?' backward-delete-char
+    bindkey '^h' backward-delete-char
+    bindkey '^w' backward-kill-word
+    bindkey '^r' history-incremental-search-backward
+# }
 
-zle -N zle-line-init
-zle -N zle-keymap-select
 export KEYTIMEOUT=1
 # }
 
@@ -49,24 +48,28 @@ function cd()
 # ENVIRONMENT CONFIGURATION {
 
     export EDITOR='vim'
-    export TERM='xterm-256color'
+    export TERM='screen-256color'
+    export PAGER=/usr/bin/vimpager
 
     # append third-party program binaries to PATH
-    export PATH=$(pwd)/../bin:/home/finalfortune/.gem/ruby/2.1.0/bin:$PATH
+    
+    # get latest gem folder
+    gembindirs=(/home/finalfortune/.gem/ruby/*/bin)
+    export PATH=$PATH:/home/finalfortune/bin:$gembindirs[-1]
 
     # Aliases {
         alias pgrep="pgrep -a"
         alias grep="grep -i"
+        alias man="man --pager=_man2vim"
+        alias less=$PAGER
+        alias zless=$PAGER
     # }
 
 # }
 
-# USER PROGRAM START-UPS {
+# USER PROGRAM START-UPS { 
+    . /usr/share/zsh/site-contrib/powerline.zsh
 
-# MPD daemon start (if no other user instance exists)
-[ ! -s ~/.config/mpd/pid ] && mpd ~/.config/mpd/mpd.conf
-
-# welcome message
-archey
-
+    # welcome message
+    archey
 # }

@@ -9,3 +9,4 @@ nnoremap <C-L> gt
 " select tab to the left
 nnoremap <C-H> gT
 
+set gui=nonavigation
