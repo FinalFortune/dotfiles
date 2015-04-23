@@ -1,3 +1,4 @@
+# from powerline.bindings.qtile.widget import Powerline
 from libqtile.config import Key, Screen, Group, Match
 from libqtile.command import lazy
 from libqtile import layout, bar, widget
@@ -7,25 +8,96 @@ import re
 
 mod = "mod4"
 
-@hook.subscribe.client_new
-def dialogs(window):
-    if(window.window.get_wm_type() == 'dialog'
-        or window.window.get_wm_transient_for()):
-        window.floating = True
+# @hook.subscribe.client_new
+# def dialogs(window):
+#     if(window.window.get_wm_type() == 'dialog'
+#             or window.window.get_wm_transient_for()):
+#         window.floating = True
+#
+#
+# @hook.subscribe.client_new
+# def idle_dialogues(window):
+#     if((window.window.get_name() == 'Search Dialog') or
+#        (window.window.get_name() == 'Module') or
+#        (window.window.get_name() == 'Goto') or
+#        (window.window.get_name() == 'IDLE Preferences')):
+#         window.floating = True
+#
+#
+# @hook.subscribe.client_new
+# def libreoffice_dialogues(window):
+#     if ((window.window.get_wm_class() == ('VCLSalFrame', 'libreoffice-calc'))
+#         or (window.window.get_wm_class() == ('VCLSalFrame', 'LibreOffice 3.4'))):
+#         window.floating = True
+#
+# #from libqtile.config import Click, Drag
+from libqtile.manager import Click, Drag
+mouse = [
+    # Drag windows around with mouse.
+    Drag([mod], "Button1", lazy.window.set_position_floating(),
+         start=lazy.window.get_position()),
+    Drag([mod], "Button3", lazy.window.set_size_floating(),
+         start=lazy.window.get_size()),
+    Click([mod], "Button2", lazy.window.disable_floating())
+]
+# Get this kind of window data from xprop
+# These wm_types are always floated
+floating_types = set(['dialog'])
+# These are programs where names may be matched to float
+floating_classes = set(["Steam"])
+# names to float, if class is in floating_classes
+floating_names = set(["Steam - Self Updater", "Video Driver Check"])
+@hook.subscribe.client_state_changed
+def whatever(window):
+    import logging
+    logging.error("csc %r", window)
 
 @hook.subscribe.client_new
-def idle_dialogues(window):
-    if((window.window.get_name() == 'Search Dialog') or
-       (window.window.get_name() == 'Module') or
-       (window.window.get_name() == 'Goto') or
-       (window.window.get_name() == 'IDLE Preferences')):
-        window.floating = True
-
-@hook.subscribe.client_new
-def libreoffice_dialogues(window):
-    if((window.window.get_wm_class() == ('VCLSalFrame', 'libreoffice-calc')) or
-    (window.window.get_wm_class() == ('VCLSalFrame', 'LibreOffice 3.4'))):
-        window.floating = True
+def floating_dialogs(window):
+    wm_type = window.window.get_wm_type()
+    wm_transient = window.window.get_wm_transient_for()
+    wm_classes = window.window.get_wm_class()
+    wm_name = window.info().get('name')
+    wm_classes = set(wm_classes) if wm_classes else set([])
+    wm_normal_hints = window.window.get_wm_normal_hints()
+    # e.g.
+    # {'base_height': 0,
+    # 'base_width': 0,
+    # 'flags': set(['PBaseSize', 'PPosition', 'PResizeInc', 'PWinGravity']),
+    # 'height_inc': 22,
+    # 'max_aspect': 0,
+    # 'max_height': 0,
+    # 'max_width': 0,
+    # 'min_aspect': 0,
+    # 'min_height': 0,
+    # 'min_width': 0,
+    # 'width_inc': 10,
+    # 'win_gravity': 0}
+    if wm_normal_hints:
+        min_width = wm_normal_hints.get('min_width')
+        min_height = wm_normal_hints.get('min_height')
+        max_width = wm_normal_hints.get('max_width')
+        max_height = wm_normal_hints.get('max_height')
+    else:
+        min_width, min_height, max_width, max_height = [None] * 4
+        wants_to_be_big = (max_height > 540.0 if max_height is not None else True)
+        import logging
+        logging.error(
+            ("wprg name: {wm_name} "
+             "wants to be big: {wants_to_be_big} "
+             "type: {wm_type} "
+             "classes: {wm_classes} "
+             "normal_hints: {wm_normal_hints}").format(
+                 wm_name=wm_name,
+                 wants_to_be_big=wants_to_be_big,
+                 wm_type=wm_type,
+                 wm_classes=wm_classes,
+                 wm_normal_hints=wm_normal_hints,
+             ))
+        if wm_transient or wm_type in floating_types or (
+            (wm_classes & floating_classes) and
+            ((not wants_to_be_big) or (wm_name in floating_names))):
+            window.floating = True
 
 keys = [
     # Audio Control
@@ -34,9 +106,9 @@ keys = [
     Key([], "XF86AudioLowerVolume",
         lazy.spawn("amixer -c 0 -q set Master 2dB-")),
     Key([], "XF86AudioMute", lazy.spawn("amixer -c 0 -q set Master toggle")),
-    Key([], "XF86AudioPlay", lazy.spawn("ncmpcpp toggle")),
-    Key([], "XF86Forward", lazy.spawn("ncmpcpp next")),
-    Key([], "XF86Back", lazy.spawn("ncmpcpp prev")),
+    Key([], "XF86AudioPlay", lazy.spawn("mpc toggle")),
+    Key([], "XF86Forward", lazy.spawn("mpc next")),
+    Key([], "XF86Back", lazy.spawn("mpc prev")),
 
     # Switch between windows in current stack pane
     Key(
@@ -90,7 +162,7 @@ keys = [
         [mod, "shift"], "Return",
         lazy.layout.toggle_split()
     ),
-    Key([mod], "Return", lazy.spawn("urxvt")),
+    Key([mod], "Return", lazy.spawn("urxvtc -e tmux")),
 
     # Toggle between different layouts as defined below
     Key([mod], "Tab",    lazy.nextlayout()),
@@ -102,7 +174,7 @@ keys = [
 
 
 # My App Groups
-webApps = ["google-chrome-stable"]
+webApps = ["google-chrome-stable","Firefox"]
 mailApps = ["thunderbird"]
 chatApps = ["pidgin"]
 
@@ -112,7 +184,9 @@ groups = [
     Group("www", matches=[Match(wm_class=["Firefox"])]),
     Group("chat", matches=[Match(wm_class=["pidgin"])]),
     Group("mail", matches=[Match(wm_class=["Thunderbird"])]),
-    Group("music", matches=[Match(wm_class=["ncmpcpp"])])
+    Group("music", matches=[Match(title="ncmpcpp")]),
+    Group("win7", matches=[Match(wm_class=["virtualbox"])]),
+    Group("steam", matches=[Match(wm_class=["Steam"])])
 ]
 
 for i, g in enumerate(groups):
@@ -139,26 +213,44 @@ layouts = [
 
     # a layout just for gimp
     layout.Slice('left', 192, name='gimp', role='gimp-toolbox',
-         fallback=layout.Slice('right', 256, role='gimp-dock',
-         fallback=layout.Stack(stacks=1, **border_args))),
+                 fallback=layout.Slice('right', 256, role='gimp-dock',
+                                       fallback=layout.Stack(stacks=1,
+                                                             **border_args))),
 
     # a layout for pidgin
     layout.Slice('right', 256, name='pidgin', role='buddy_list',
-                 fallback=layout.Stack(stacks=1, **border_args))
+                 fallback=layout.Stack(stacks=1, **border_args)),
 
-]
+    # a layout for steam
+    layout.Slice('right', 256, name='steam', role='Friends',
+                 fallback=layout.MonadTall(stacks=1, **border_args))
+    ]
 
+# orange text on grey background
+default_data = dict(fontsize=12,
+                    foreground="FF6600",
+                    background="1D1D1D",
+                    font="ttf-droid")
+
+date_conf = dict(fontsize=12,
+                    foreground="FFFFFF",
+                    background="1D1D1D",
+                    font="ttf-droid")
 screens = [
     Screen(
+        # top=bar.Bar(
+        #     [
+        #         # Powerline(timeout=2)
+        #     ],
+        #     30
+        # ),
         bottom=bar.Bar(
             [
-                widget.GroupBox(),
-                widget.Prompt(),
-                widget.WindowName(),
-                widget.TextBox("default config", name="default"),
-                widget.Systray(),
-                widget.Volume(),
-                widget.Clock('%Y-%m-%d %a %I:%M %p'),
+                widget.GroupBox(**default_data),
+                widget.WindowName(**default_data),
+                widget.TextBox(**default_data),
+                widget.Systray(**default_data),
+                widget.Volume(**default_data),
             ],
             30,
         ),
@@ -166,13 +258,11 @@ screens = [
     Screen(
         bottom=bar.Bar(
             [
-                widget.GroupBox(),
-                widget.Prompt(),
-                widget.WindowName(),
-                widget.TextBox("default config", name="default"),
-                widget.Systray(),
-                widget.Volume(),
-                widget.Clock('%Y-%m-%d %a %I:%M %p'),
+                widget.GroupBox(**default_data),
+                widget.WindowName(**default_data),
+                widget.TextBox(**default_data),
+                widget.Systray(**default_data),
+                widget.Volume(**default_data),
             ],
             30,
         ),
@@ -181,16 +271,26 @@ screens = [
 
 main = None
 follow_mouse_focus = True
-bring_front_click = False
 cursor_warp = False
 floating_layout = layout.Floating()
-mouse = ()
+
+# Mouse
+
+# mouse = (
+#     # Drag([mod], 'Button1', lazy.window.set_position_floating(),
+#     #     start=lazy.window.get_position()),
+#     # Drag([mod], 'Button3', lazy.window.set_size_floating(),
+#     #     start=lazy.window.get_size())
+# )
+
+bring_front_click = True
 auto_fullscreen = True
 widget_defaults = {}
 
 
 def is_running(process):
-    s = subprocess.Popen(["ps", "axw"], stdout=subprocess.PIPE)
+    # s = subprocess.Popen(["ps", "axw"], stdout=subprocess.PIPE)
+    s = subprocess.Popen(["pgrep", process], stdout=subprocess.PIPE)
     for x in s.stdout:
         if re.search(process, x):
             return True
@@ -210,5 +310,6 @@ def startup():
                  "/home/finalfortune/Downloads/Pictures/Wallpapers/me.jpg")
     execute_once("firefox")
     execute_once("thunderbird")
-    execute_once("urxvt -e ncmpcpp")
-    subprocess.Popen(['xsetroot', '-cursor_name', 'left_ptr'])
+    execute_once("steam")
+    execute_once(["urxvtc", "-e", "ncmpcpp"])
+    execute_once(['xsetroot', '-cursor_name', 'left_ptr'])
